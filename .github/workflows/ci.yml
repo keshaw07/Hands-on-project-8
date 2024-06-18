@@ -1,4 +1,4 @@
-name: iOS CI
+name: iOS CI/CD
 
 on:
   push:
@@ -23,14 +23,16 @@ jobs:
 
       - name: Install CocoaPods
         run: sudo gem install cocoapods
-  
+
       - name: Install dependencies
-        run: pod install
+        run: |
+          cd CrashDemoIOS
+          pod install
 
       - name: Decode GoogleService-Info.plist
         run: |
           echo "${{ secrets.GOOGLE_SERVICE_INFO }}" | base64 --decode > "${GITHUB_WORKSPACE}/CrashDemoIOS/GoogleService-Info.plist"
-          
+
       - name: Install xcpretty
         run: sudo gem install xcpretty
 
@@ -41,19 +43,30 @@ jobs:
 
       - name: Build and Test
         run: |
-         cd ${GITHUB_WORKSPACE}/CrashDemoIOS
-          ls
+          cd CrashDemoIOS
           xcodebuild clean build test \
             -workspace CrashDemoIOS.xcworkspace \
             -scheme CrashDemoIOS \
             -destination 'platform=iOS Simulator,name=iPhone 13' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO | xcpretty
-            
-      - name: Build iOS App
+
+      - name: Archive iOS App
         run: |
-          xcodebuild clean archive -workspace CrashDemoIOS.xcworkspace -scheme CrashDemoIOS -archivePath build/YourApp.xcarchive
+          xcodebuild clean archive -workspace CrashDemoIOS.xcworkspace -scheme CrashDemoIOS -archivePath build/CrashDemoIOS.xcarchive
 
       - name: Export IPA
         run: |
           xcodebuild -exportArchive -archivePath "build/CrashDemoIOS.xcarchive" -exportOptionsPlist exportOptions.plist -exportPath "build"
+
+      - name: Set up Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Authenticate Firebase CLI
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: firebase login:ci --token "$FIREBASE_TOKEN"
+
+      - name: Deploy to Firebase Hosting
+        run: |
+          firebase deploy --only hosting --token "$FIREBASE_TOKEN"
