@@ -24,8 +24,9 @@ jobs:
       - name: Install CocoaPods
         run: sudo gem install cocoapods
       - name: filelist
-        run: |
-          echo ls -la
+        run: | 
+         echo ${GITHUB_WORKSPACE}
+         ls
       - name: Install dependencies
         run: pod install
 
