@@ -33,6 +33,14 @@ jobs:
       - name: Decode GoogleService-Info.plist
         run: |
           echo "${{ secrets.GOOGLE_SERVICE_INFO }}" | base64 --decode > "${GITHUB_WORKSPACE}/CrashDemoIOS/GoogleService-Info.plist"
+          
+      - name: Install xcpretty
+        run: sudo gem install xcpretty
+
+      - name: Apply xattr fix
+        run: |
+           mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/CrashDemoIOS-bkjulqkhpieqhnapaoocmywsvrya/SourcePackages/checkouts/nanopb/build
+           xattr -w com.apple.xcode.CreatedByBuildSystem true /Users/runner/Library/Developer/Xcode/DerivedData/CrashDemoIOS-bkjulqkhpieqhnapaoocmywsvrya/SourcePackages/checkouts/nanopb/build
 
       - name: Build and Test
         run: |
