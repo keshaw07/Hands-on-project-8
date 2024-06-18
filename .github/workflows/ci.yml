@@ -53,7 +53,7 @@ jobs:
       - name: Set up Node.js                               # Line 54
         uses: actions/setup-node@v2                        # Line 55
         with:                                              # Line 56
-          node-version: '16'  # Updated Node.js version to 16 # Line 57
+          node-version: '18'  # Updated Node.js version to 16 # Line 57
 
       - name: Install Firebase CLI                         # Line 59
         run: npm install -g firebase-tools                 # Line 60
